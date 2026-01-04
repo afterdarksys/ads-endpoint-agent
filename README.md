@@ -14,9 +14,16 @@ ADS Endpoint Agent provides comprehensive endpoint security through modular comp
 
 ## Precompiled Binaries
 
-Download ready-to-use binaries from the releases repository:
+Skip the build process - download ready-to-use binaries:
 
-**[ads-endpoint-agent-binaries](https://github.com/afterdarksys/ads-endpoint-agent-binaries)**
+**https://github.com/afterdarksys/ads-endpoint-agent-binaries**
+
+```bash
+git clone https://github.com/afterdarksys/ads-endpoint-agent-binaries.git
+cd ads-endpoint-agent-binaries
+sudo ./scripts/install-linux.sh   # Linux
+sudo ./scripts/install-macos.sh   # macOS
+```
 
 ## Usage
 
