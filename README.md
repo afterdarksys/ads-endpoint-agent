@@ -1,16 +1,119 @@
 # ADS Endpoint Agent
 
-A unified build system for the AfterDark Security endpoint agent suite.
+A unified security agent suite for endpoint protection and threat detection.
 
-## Overview
+## Features
 
-ADS Endpoint Agent is a "virtual package" that orchestrates the building and deployment of:
+ADS Endpoint Agent provides comprehensive endpoint security through modular components:
 
-- **afterdark-darkd** - Core security daemon with threat intelligence, patch monitoring, and file integrity
-- **darkd-rk-linuxmalware** - Rootkit and malware scanner module
-- **darkd-clamav-plugin** - ClamAV antivirus integration plugin
+- **Core Security Daemon** - Threat intelligence integration, patch monitoring, and file integrity checking
+- **Rootkit & Malware Scanner** - Detection of rootkits, hidden processes, and Linux malware
+- **ClamAV Integration** - Optional antivirus scanning via ClamAV engine
+- **Cross-Platform Support** - Builds for macOS (Intel/ARM), Linux (x86_64/ARM64), and Windows
+- **Plugin Architecture** - Extensible gRPC-based plugin framework for custom modules
 
-## Quick Start
+## Precompiled Binaries
+
+Download ready-to-use binaries from the releases repository:
+
+**[ads-endpoint-agent-binaries](https://github.com/afterdarksys/ads-endpoint-agent-binaries)**
+
+## Usage
+
+After installation, the agent runs as a system service:
+
+```bash
+# Start the daemon
+sudo systemctl start darkd        # Linux
+sudo launchctl load /Library/LaunchDaemons/com.afterdark.darkd.plist  # macOS
+
+# Administration
+darkdadm status                   # Check agent status
+darkdadm scan --full              # Run full system scan
+darkdadm update                   # Update threat signatures
+
+# API access
+darkapi health                    # Check API health
+darkapi scan /path/to/check       # Scan specific path
+```
+
+## Installation
+
+### From Precompiled Binaries
+
+Download from [ads-endpoint-agent-binaries](https://github.com/afterdarksys/ads-endpoint-agent-binaries) and run the install script:
+
+```bash
+# Linux
+sudo ./scripts/install-linux.sh
+
+# macOS
+sudo ./scripts/install-macos.sh
+
+# Windows (PowerShell as Administrator)
+.\scripts\install-windows.ps1
+```
+
+### From Source
+
+See [Building](#building) below to compile from source.
+
+## How It Works
+
+ADS Endpoint Agent uses a modular architecture:
+
+```
+afterdark-darkd (Core Daemon)
+├── Threat Intelligence Module
+├── Patch Monitoring
+├── File Integrity Monitoring
+└── Plugin Host (gRPC)
+    ├── darkd-scanner (Rootkit/Malware)
+    └── clamav-scanner (Antivirus)
+```
+
+Plugins are standalone executables that register with the core daemon via gRPC. They're automatically discovered from the `plugins/` directory at runtime.
+
+### Component Repositories
+
+| Repository | Description |
+|------------|-------------|
+| [afterdark-darkd](https://github.com/afterdarksys/afterdark-darkd) | Core security daemon |
+| [darkd-rk-linuxmalware](https://github.com/afterdarksys/darkd-rk-linuxmalware) | Rootkit/malware scanner |
+| [darkd-clamav-plugin](https://github.com/afterdarksys/darkd-clamav-plugin) | ClamAV integration |
+
+---
+
+## Building
+
+This repository is a "virtual package" that orchestrates building all components from source.
+
+### Requirements
+
+- Go 1.21+ (1.22+ for clamav-plugin)
+- Git
+- Make (optional)
+- pkg-config (for clamav-plugin)
+- libclamav-dev (for clamav-plugin, optional)
+
+#### Platform-Specific Dependencies
+
+**macOS:**
+```bash
+brew install go pkg-config clamav  # clamav optional
+```
+
+**Linux (Debian/Ubuntu):**
+```bash
+apt install golang-go pkg-config libclamav-dev  # libclamav-dev optional
+```
+
+**Linux (RHEL/CentOS):**
+```bash
+dnf install golang pkg-config clamav-devel  # clamav-devel optional
+```
+
+### Quick Start
 
 ```bash
 # Clone this repository
@@ -28,38 +131,11 @@ cd ads-endpoint-agent
 ./build.sh -a x86 build    # Linux x86_64
 ```
 
-## Requirements
-
-- Go 1.21+ (1.22+ for clamav-plugin)
-- Git
-- Make (optional)
-- pkg-config (for clamav-plugin)
-- libclamav-dev (for clamav-plugin, optional)
-
-### Platform-Specific
-
-**macOS:**
-```bash
-brew install go pkg-config clamav  # clamav optional
-```
-
-**Linux (Debian/Ubuntu):**
-```bash
-apt install golang-go pkg-config libclamav-dev  # libclamav-dev optional
-```
-
-**Linux (RHEL/CentOS):**
-```bash
-dnf install golang pkg-config clamav-devel  # clamav-devel optional
-```
-
-## Usage
+### Build Commands
 
 ```bash
 ./build.sh [OPTIONS] [COMMAND]
 ```
-
-### Commands
 
 | Command | Description |
 |---------|-------------|
@@ -70,7 +146,7 @@ dnf install golang pkg-config clamav-devel  # clamav-devel optional
 | `install` | Install to system (requires sudo) |
 | `help` | Show help message |
 
-### Options
+### Build Options
 
 | Option | Description |
 |--------|-------------|
@@ -79,7 +155,7 @@ dnf install golang pkg-config clamav-devel  # clamav-devel optional
 | `-s, --skip-cgo` | Skip CGO-dependent builds (clamav-plugin) |
 | `-v, --verbose` | Verbose output |
 
-### Architectures
+### Target Architectures
 
 | Code | Platform | Architecture |
 |------|----------|--------------|
@@ -90,7 +166,7 @@ dnf install golang pkg-config clamav-devel  # clamav-devel optional
 | `win64` | Windows | x86_64 |
 | `all` | All | All supported platforms |
 
-## Examples
+### Build Examples
 
 ```bash
 # First-time setup
@@ -112,9 +188,9 @@ dnf install golang pkg-config clamav-devel  # clamav-devel optional
 ./build.sh clean
 ```
 
-## Output
+### Build Output
 
-Binaries are placed in `/Users/ryan/development/ads-endpoint-agent-binaries/`:
+Binaries are placed in `../ads-endpoint-agent-binaries/`:
 
 ```
 ads-endpoint-agent-binaries/
@@ -137,30 +213,7 @@ ads-endpoint-agent-binaries/
 └── README.md
 ```
 
-## Installation
-
-After building, run the appropriate install script:
-
-```bash
-# Linux
-sudo ./ads-endpoint-agent-binaries/scripts/install-linux.sh
-
-# macOS
-sudo ./ads-endpoint-agent-binaries/scripts/install-macos.sh
-
-# Windows (PowerShell as Administrator)
-.\ads-endpoint-agent-binaries\scripts\install-windows.ps1
-```
-
-## Component Repositories
-
-| Repository | Description |
-|------------|-------------|
-| [afterdark-darkd](https://github.com/afterdarksys/afterdark-darkd) | Core security daemon |
-| [darkd-rk-linuxmalware](https://github.com/afterdarksys/darkd-rk-linuxmalware) | Rootkit/malware scanner |
-| [darkd-clamav-plugin](https://github.com/afterdarksys/darkd-clamav-plugin) | ClamAV integration |
-
-## Architecture
+### Repository Structure
 
 ```
 ads-endpoint-agent/          # This repository (build orchestration)
@@ -172,14 +225,7 @@ ads-endpoint-agent/          # This repository (build orchestration)
 ../darkd-clamav-plugin/      # ClamAV plugin (cloned by build.sh)
 ```
 
-## Module Registration
-
-The build system compiles `darkd-rk-linuxmalware` and `darkd-clamav-plugin` as standalone plugin executables that integrate with `afterdark-darkd` via its gRPC plugin framework:
-
-1. **darkd-scanner** registers as a `Service` plugin providing rootkit/malware scanning
-2. **clamav-scanner** registers as a `Service` plugin providing ClamAV-based scanning
-
-Plugins are placed in the `plugins/` subdirectory and automatically discovered by `afterdark-darkd` at runtime.
+---
 
 ## License
 
