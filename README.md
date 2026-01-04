@@ -82,6 +82,17 @@ Plugins are standalone executables that register with the core daemon via gRPC. 
 | [darkd-rk-linuxmalware](https://github.com/afterdarksys/darkd-rk-linuxmalware) | Rootkit/malware scanner |
 | [darkd-clamav-plugin](https://github.com/afterdarksys/darkd-clamav-plugin) | ClamAV integration |
 
+## Integrations
+
+ADS Endpoint Agent connects with these security platforms for enhanced threat detection and response:
+
+| Platform | Description |
+|----------|-------------|
+| [DarkAPI.io](https://darkapi.io) | Enterprise Security API Platform |
+| [filehashes.io](https://filehashes.io) | File hash reporting and tracking engine |
+| [ThreatDefense.AI](https://threatdefense.ai) | Threat intelligence platform |
+| [DNSScience.io](https://dnsscience.io) | Global DNS intelligence platform |
+
 ---
 
 ## Building
